@@ -17,6 +17,13 @@ export interface TestRunOptions {
   env: NodeJS.ProcessEnv;
 }
 
+export interface ProjectRunOptions {
+  /** Show the browser window. */
+  headed: boolean;
+  /** Run the automatic checks only, without the AI test goals. */
+  skipAi: boolean;
+}
+
 export interface GoalsOutcome {
   goals: GoalResult[];
   /** Summary for the report's AI line. */

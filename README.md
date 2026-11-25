@@ -49,6 +49,36 @@ marked "could-not-finish" with the reason. Use `--skip-ai` to skip the goals.
 The report is written to `reports/<project>/<timestamp>/report.md` (and
 `report.json`). The `reports/` folder is excluded from git.
 
+## Web UI
+
+```powershell
+npm run ui                  # then open http://127.0.0.1:4300
+npm run ui -- --port 4400   # another port
+```
+
+A pixel-art dashboard for people who prefer not to use the terminal:
+
+- **System check** in the header: Node, browser and local AI, each shown as
+  OK or OFF, with the reason in a note bar.
+- **Projects**: press RUN; tick "Show the browser" or "Skip AI goals" first.
+- **Live run**: progress and the log, streamed as the agent works.
+- **Colour key**: what each badge means. Every status has its own colour,
+  icon _and_ word, so nothing relies on colour alone.
+- **Reports**: past runs, newest first. Open one to see severity totals, test
+  goals step by step (including refused actions), findings with filters,
+  steps to reproduce and screenshots.
+
+Fonts are self-hosted from npm (Press Start 2P for headings, Pixelify Sans for
+text, VT323 for the log; all SIL Open Font Licence), so the UI works offline
+and loads nothing from the internet.
+
+Security: the UI starts apps and browsers, so it only listens on
+`127.0.0.1`, rejects requests for any other host name (DNS rebinding), only
+accepts same-origin JSON POSTs (cross-site requests cannot start runs), serves
+a fixed list of files, and sends a strict Content Security Policy. Page and
+report text is always inserted as text, never as HTML. Do not expose it on the
+network.
+
 ### Commands
 
 | Command                               | What it does                                                                                       |
@@ -56,6 +86,7 @@ The report is written to `reports/<project>/<timestamp>/report.md` (and
 | `npm run agent -- run <project>`      | Tests a project and writes a report. `--headed` shows the browser; `--skip-ai` skips the AI goals. |
 | `npm run agent -- list`               | Lists projects in `projects/`                                                                      |
 | `npm run agent -- doctor`             | Checks this computer is ready                                                                      |
+| `npm run ui`                          | Starts the local web UI on http://127.0.0.1:4300                                                   |
 | `npm test`                            | Unit tests and the end-to-end demo run                                                             |
 | `npm run lint` / `npm run fix`        | Google TypeScript style (gts)                                                                      |
 | `npm run typecheck` / `npm run build` | TypeScript checks / compile to `dist/`                                                             |
@@ -204,9 +235,11 @@ src/
   runner/                    Orchestrates a run (checks, then AI goals)
   agent/                     AI testing loop: observer, brain, guard, executor, log-in
   ai/                        Local Ollama client (start-up check and chat)
+  ui/                        Local web UI server: runs, live log, reports
   doctor/                    Environment readiness checks
   shared/                    Logger and URL allowlist
 projects/<name>/project.json Per-project settings
+web/                         Web UI page, styles, script and pixel logo
 examples/demo-app/           SPECIMEN app with deliberate bugs
 tests/                       Vitest unit tests and the end-to-end demo run
 tests/helpers/scripted-ai.ts Stand-in for the model so the loop is testable

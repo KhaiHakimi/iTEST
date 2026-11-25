@@ -13,6 +13,16 @@ phase table.
 - `npm run lint`, `npm run fix` (gts, Google TypeScript style).
 - `npm run typecheck` (whole repo) and `npm run build` (`tsconfig.build.json`, `src/` only).
 
+## Web UI
+
+- `npm run ui` starts `src/ui/` (Node http server, no framework) serving
+  `web/` (plain browser JS, no build step). Pixel fonts come from
+  `@fontsource/*` in node_modules, never a CDN.
+- Keep its protections: 127.0.0.1 only, Host-header allowlist, same-origin
+  JSON for POSTs, fixed file list (`WEB_FILES`, `FONT_FILES`), strict CSP, and
+  `textContent` (never `innerHTML`) for anything from reports or pages.
+- Badges always pair colour with an icon and a word.
+
 ## Conventions
 
 - TypeScript, ESM (`"type": "module"`, `nodenext`): relative imports end in `.js`.

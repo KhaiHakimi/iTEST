@@ -1,5 +1,20 @@
 import type {GoalResult} from '../../agent/interfaces/agent.interface.js';
-import type {Finding} from './finding.interface.js';
+import type {Finding, Severity} from './finding.interface.js';
+
+/** Counts used for exit codes, the web UI's report list and live run view. */
+export interface RunSummary {
+  status: RunStatus;
+  findings: number;
+  bySeverity: Record<Severity, number>;
+  /** Critical plus high findings. */
+  serious: number;
+  goals: {
+    total: number;
+    passed: number;
+    failed: number;
+    couldNotFinish: number;
+  };
+}
 
 /** "could-not-finish" means the agent failed, not the app; see the proposal. */
 export type RunStatus = 'completed' | 'could-not-finish';

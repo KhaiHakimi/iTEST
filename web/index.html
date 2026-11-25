@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>iTEST</title>
+    <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" type="module"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <img src="/logo.svg" alt="" class="logo" width="48" height="48" />
+        <div>
+          <h1>iTEST</h1>
+          <p class="tagline">Local AI testing agent</p>
+        </div>
+      </div>
+      <ul class="health" id="health" aria-label="System check">
+        <li class="chip chip-wait">Checking…</li>
+      </ul>
+    </header>
+    <div id="notice" class="notice" hidden></div>
+
+    <main class="layout">
+      <section class="panel" aria-labelledby="projects-title">
+        <h2 id="projects-title">Projects</h2>
+        <p class="hint">Pick a project and press RUN.</p>
+        <div class="options">
+          <label class="check">
+            <input type="checkbox" id="opt-headed" />
+            <span>Show the browser while testing</span>
+          </label>
+          <label class="check">
+            <input type="checkbox" id="opt-skip-ai" />
+            <span>Skip AI goals (automatic checks only)</span>
+          </label>
+        </div>
+        <ul id="projects" class="project-list"></ul>
+      </section>
+
+      <section class="panel" aria-labelledby="run-title">
+        <h2 id="run-title">Live run</h2>
+        <div id="run-status" class="run-status" aria-live="polite"></div>
+        <ol id="log" class="log"></ol>
+      </section>
+
+      <section class="panel wide" aria-labelledby="key-title">
+        <h2 id="key-title">Colour key</h2>
+        <div id="legend" class="legend"></div>
+      </section>
+
+      <section class="panel wide" aria-labelledby="reports-title">
+        <h2 id="reports-title">Reports</h2>
+        <div id="reports" class="report-list"></div>
+      </section>
+
+      <section
+        class="panel wide"
+        id="report-view"
+        hidden
+        aria-labelledby="report-title"
+      >
+        <div class="report-head">
+          <h2 id="report-title">Report</h2>
+          <button
+            type="button"
+            class="btn btn-small btn-grey"
+            id="close-report"
+          >
+            Close
+          </button>
+        </div>
+        <div id="report-body"></div>
+      </section>
+    </main>
+  </body>
+</html>

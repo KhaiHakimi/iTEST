@@ -2,11 +2,32 @@ import {mkdir, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import type {GoalResult} from '../agent/interfaces/agent.interface.js';
 import type {Finding} from './interfaces/finding.interface.js';
-import type {RunReport} from './interfaces/run-report.interface.js';
+import type {RunReport, RunSummary} from './interfaces/run-report.interface.js';
 import {SEVERITIES} from './report.constants.js';
 
 /** Writes a run's results as `report.json` (for tools) and `report.md` (for people). */
 export class ReportService {
+  summarise(report: RunReport): RunSummary {
+    const bySeverity = {critical: 0, high: 0, medium: 0, low: 0};
+    for (const finding of report.findings) {
+      bySeverity[finding.severity] += 1;
+    }
+    const countGoals = (status: GoalResult['status']) =>
+      report.goals.filter(goal => goal.status === status).length;
+    return {
+      status: report.status,
+      findings: report.findings.length,
+      bySeverity,
+      serious: bySeverity.critical + bySeverity.high,
+      goals: {
+        total: report.goals.length,
+        passed: countGoals('passed'),
+        failed: countGoals('failed'),
+        couldNotFinish: countGoals('could-not-finish'),
+      },
+    };
+  }
+
   /** Returns the path of the Markdown report. */
   async write(report: RunReport, outDir: string): Promise<string> {
     await mkdir(outDir, {recursive: true});
