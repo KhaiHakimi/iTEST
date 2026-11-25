@@ -1,0 +1,11 @@
+node_modules/
+dist/
+
+# Test reports can contain screenshots and page content: keep them off git.
+reports/
+.tmp/
+
+# Local secrets (test account passwords, etc.). Commit .env.example only.
+.env
+.env.*
+!.env.example

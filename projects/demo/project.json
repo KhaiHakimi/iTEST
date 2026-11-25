@@ -1,0 +1,17 @@
+{
+  "name": "demo",
+  "environment": "local",
+  "baseUrl": "http://127.0.0.1:4173",
+  "app": {
+    "startCommand": "node examples/demo-app/server.mjs",
+    "cwd": "../..",
+    "readyTimeoutSeconds": 30
+  },
+  "pages": ["/", "/about", "/apply"],
+  "allowedOrigins": [],
+  "checks": {
+    "brokenLinks": true,
+    "accessibility": true,
+    "maxLinksPerPage": 50
+  }
+}
