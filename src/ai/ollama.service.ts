@@ -1,6 +1,7 @@
 import {setTimeout as delay} from 'node:timers/promises';
 import type {LoggerService} from '../shared/logger.service.js';
 import {
+  CHAT_TIMEOUT_MS,
   DEFAULT_OLLAMA_MODEL,
   DEFAULT_OLLAMA_URL,
   DEFAULT_WARN_SECONDS,
@@ -12,6 +13,8 @@ import {
   RETRY_BASE_DELAY_MS,
 } from './ai.constants.js';
 import type {
+  ChatMessage,
+  LocalAiClient,
   OllamaHealth,
   OllamaSettings,
 } from './interfaces/ollama.interface.js';
@@ -20,11 +23,12 @@ interface TagsResponse {
   models: Array<{name: string}>;
 }
 
-/**
- * Talks to the local Ollama server. Phase 1 only needs the start-up check;
- * Phase 2 adds the chat calls the testing loop uses.
- */
-export class OllamaService {
+interface ChatResponse {
+  message: {content: string};
+}
+
+/** Talks to the local Ollama server: start-up check and chat calls. */
+export class OllamaService implements LocalAiClient {
   constructor(
     private readonly settings: OllamaSettings,
     private readonly logger: LoggerService,
@@ -50,6 +54,31 @@ export class OllamaService {
       model: env.AGENT_OLLAMA_MODEL || DEFAULT_OLLAMA_MODEL,
       warnAfterMs: warnSeconds * 1000,
     };
+  }
+
+  get model(): string {
+    return this.settings.model;
+  }
+
+  async chat(messages: ChatMessage[], format: object): Promise<string> {
+    const response = await this.requestJson<ChatResponse>(
+      '/api/chat',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          model: this.settings.model,
+          messages,
+          format,
+          stream: false,
+          think: false,
+          keep_alive: KEEP_ALIVE,
+          // Deterministic answers make runs repeatable and bugs replayable.
+          options: {temperature: 0},
+        }),
+      },
+      CHAT_TIMEOUT_MS,
+    );
+    return response.message.content;
   }
 
   /** Start-up check from the proposal: service running, model present, answers quickly. */

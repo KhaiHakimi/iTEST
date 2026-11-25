@@ -1,3 +1,4 @@
+import type {GoalResult} from '../../agent/interfaces/agent.interface.js';
 import type {Finding} from './finding.interface.js';
 
 /** "could-not-finish" means the agent failed, not the app; see the proposal. */
@@ -19,6 +20,9 @@ export interface RunReport {
   status: RunStatus;
   /** Why the run could not finish, when status is "could-not-finish". */
   failure?: string;
+  /** Model used and start-up check result, or why AI testing was skipped. */
+  ai: string;
   pages: PageVisit[];
+  goals: GoalResult[];
   findings: Finding[];
 }

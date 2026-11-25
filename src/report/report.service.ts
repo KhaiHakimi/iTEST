@@ -1,5 +1,6 @@
 import {mkdir, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
+import type {GoalResult} from '../agent/interfaces/agent.interface.js';
 import type {Finding} from './interfaces/finding.interface.js';
 import type {RunReport} from './interfaces/run-report.interface.js';
 import {SEVERITIES} from './report.constants.js';
@@ -27,6 +28,7 @@ export class ReportService {
       `- Started: ${report.startedAt}`,
       `- Finished: ${report.finishedAt}`,
       `- Status: **${report.status}**`,
+      `- AI: ${this.inline(report.ai)}`,
     ];
     if (report.failure) {
       lines.push(
@@ -56,6 +58,11 @@ export class ReportService {
       );
     }
 
+    if (report.goals.length) {
+      lines.push('', '## Test goals', '');
+      report.goals.forEach(goal => lines.push(...this.formatGoal(goal)));
+    }
+
     lines.push('', '## Findings', '');
     if (report.findings.length === 0) {
       lines.push('No problems found by the automatic checks.');
@@ -69,19 +76,68 @@ export class ReportService {
   private formatFinding(finding: Finding, number: number): string[] {
     const seen =
       finding.occurrences > 1 ? ` (seen ${finding.occurrences} times)` : '';
+    const toConfirm =
+      finding.confirmation === 'to-confirm' ? ' (AI-found: to confirm)' : '';
     const lines = [
-      `### ${number}. [${finding.severity}] ${finding.title}${seen}`,
+      `### ${number}. [${finding.severity}] ${this.inline(finding.title)}${toConfirm}${seen}`,
       '',
       `- Source: ${finding.source}`,
       `- Page: ${finding.pageUrl}`,
-      '',
-      this.fence(finding.detail),
     ];
+    if (finding.screenshot) {
+      lines.push(
+        `- Screenshot: [${finding.screenshot}](${finding.screenshot})`,
+      );
+    }
+    lines.push('', this.fence(finding.detail));
+    if (finding.stepsToReproduce?.length) {
+      lines.push(
+        '',
+        'Steps to reproduce:',
+        '',
+        ...finding.stepsToReproduce.map(
+          (step, index) => `${index + 1}. ${this.inline(step)}`,
+        ),
+      );
+    }
     if (finding.evidence) {
       lines.push('', 'Evidence:', '', this.fence(finding.evidence));
     }
     lines.push('');
     return lines;
+  }
+
+  private formatGoal(goal: GoalResult): string[] {
+    const lines = [
+      `### ${goal.id}: ${goal.status}`,
+      '',
+      `Goal: ${this.inline(goal.goal)}`,
+      '',
+      `Result: ${this.inline(goal.summary)}`,
+    ];
+    if (goal.steps.length) {
+      lines.push(
+        '',
+        ...goal.steps.map(
+          step =>
+            `${step.number}. ${this.inline(step.description)} (${step.outcome}: ${this.inline(step.detail)})`,
+        ),
+      );
+    }
+    lines.push('');
+    return lines;
+  }
+
+  /**
+   * Text from pages or the AI shown outside a fence: kept on one line, with
+   * angle brackets escaped so it cannot inject HTML into rendered Markdown.
+   */
+  private inline(text: string): string {
+    return text
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
   }
 
   /**

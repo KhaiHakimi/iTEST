@@ -14,5 +14,7 @@ export const RETRY_BASE_DELAY_MS = 1_000;
 export const METADATA_TIMEOUT_MS = 5_000;
 /** The first prompt also loads the model into memory, which is slow on CPU. */
 export const GENERATE_TIMEOUT_MS = 180_000;
+/** One testing-loop decision; generous because CPU-only machines are slow. */
+export const CHAT_TIMEOUT_MS = 120_000;
 /** Keeps the model loaded between calls during a run. */
 export const KEEP_ALIVE = '15m';

@@ -13,5 +13,27 @@
     "brokenLinks": true,
     "accessibility": true,
     "maxLinksPerPage": 50
-  }
+  },
+  "accounts": {
+    "applicant": {
+      "usernameEnv": "DEMO_APPLICANT_USER",
+      "passwordEnv": "DEMO_APPLICANT_PASS"
+    }
+  },
+  "login": {
+    "path": "/login",
+    "usernameSelector": "#email",
+    "passwordSelector": "#password",
+    "submitSelector": "button[type=submit]",
+    "successSelector": "text=Welcome"
+  },
+  "testGoals": [
+    {
+      "id": "cgpa-out-of-range",
+      "goal": "Start an application, fill in a full name and a CGPA of 5.00, and submit it. The requirement says CGPA must be between 0.00 and 4.00, so the app should refuse 5.00 with an error message.",
+      "startPath": "/dashboard",
+      "account": "applicant",
+      "maxSteps": 12
+    }
+  ]
 }

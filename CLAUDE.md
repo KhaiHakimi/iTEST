@@ -7,7 +7,9 @@ phase table.
 ## Commands
 
 - `npm run agent -- run demo` runs the agent on the bundled demo app.
-- `npm test` (Vitest; includes an end-to-end run that needs Chromium).
+- `npm test` (Vitest; includes an end-to-end run that needs Chromium). The AI
+  loop is tested with `tests/helpers/scripted-ai.ts`, a scripted stand-in for
+  the model; it has not yet been run against a real Ollama model.
 - `npm run lint`, `npm run fix` (gts, Google TypeScript style).
 - `npm run typecheck` (whole repo) and `npm run build` (`tsconfig.build.json`, `src/` only).
 
@@ -34,11 +36,14 @@ phase table.
 - Never log secrets or values extracted from documents. Reports stay out of git.
 - Dangerous actions (log out, delete, pay, send) are refused unless a test goal
   explicitly allows them.
-- Page text given to the AI must be wrapped as untrusted content (Phase 2).
+- Page text given to the AI is wrapped as untrusted content and neutralised
+  so it cannot close the block (`AgentBrainService`). Credentials never enter
+  prompts; log-in is scripted (`LoginService`).
+- AI-reported bugs must pass the evidence check and are marked "to confirm".
 
-## Next: Phase 2 (AI testing)
+## Next: Phase 2 part 2
 
-Per the proposal's build order: prompt-injection protection first (minimum
-tool set, untrusted-content wrapping, dangerous-action block, suspicious-text
-flagging), then reliability (scripted routine steps, timeouts and retries,
-checkpoints), then evidence and replay checks, then per-project rules files.
+In the proposal's build order: reliability (checkpoints after each goal so a
+failed run resumes), then the replay check (replay recorded steps in a fresh
+browser: confirmed or could-not-reproduce) and the per-project "not a bug"
+list, then per-project rules files with fixed Playwright checks.
